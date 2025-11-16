@@ -1,9 +1,22 @@
 <!DOCTYPE html>
 <html>
-  <head><title>QuickCal</title></head>
+  <head>
+    <!-- character incoding to display characters correctly -->
+    <meta charset="utf-8" /> 
+    <title>Evently</title>
+    <style>
+      body {font: 14px system-ui; width: 320px; padding: 12px; }
+      button {margin-top: 8px; }
+      textarea {width: 100%; height: 90px; }
+      pre {white-space: pre-wrap; }
+    </style>
+  </head>
   <body>
-    <h2>QuickCal</h2>
-    <p>Extension loaded!</p>
+    <h2>Evently</h2>
+    <button id="connect">Connect Google</button>
+    <hr/>
+    <button id="list-events">List My Events</button>
+    <pre id="out"></pre>
     <script src="popup.js"></script>
   </body>
 </html>
