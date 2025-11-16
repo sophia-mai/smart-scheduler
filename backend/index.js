@@ -10,6 +10,7 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const BASE_DATE = '2025-11-16'
 
 if (!GEMINI_API_KEY) {
   console.error('ERROR: GEMINI_API_KEY is not set in .env');
@@ -28,29 +29,34 @@ app.post('/api/parse-event', async (req, res) => {
   }
 
   const prompt = `
-You are an assistant that extracts calendar event information.
+  You are an assistant that extracts calendar event information.
 
-Given the following text, extract:
-- title (short)
-- start_datetime_iso (ISO 8601, assume America/New_York)
-- end_datetime_iso (ISO 8601, default 30 minutes after start if not specified)
-- location
-- online_meeting_url (Zoom/Meet/Teams link)
-- notes (extra info)
+  Assume that "today" is ${BASE_DATE} (YYYY-MM-DD).
+  When the text uses relative dates like "tomorrow", "next Tuesday",
+  "this Friday", etc., resolve them relative to this fixed date.
 
-Respond with ONLY valid JSON like:
-{
-  "title": "...",
-  "start_datetime_iso": "YYYY-MM-DDTHH:MM:SS-05:00",
-  "end_datetime_iso": "YYYY-MM-DDTHH:MM:SS-05:00",
-  "location": "...",
-  "online_meeting_url": "...",
-  "notes": "..."
-}
+  Given the following text, extract:
+  - title (short)
+  - start_datetime_iso (ISO 8601, assume America/New_York)
+  - end_datetime_iso (ISO 8601, default 30 minutes after start if not specified)
+  - location
+  - online_meeting_url (Zoom/Meet/Teams link)
+  - notes (extra info)
 
-Text:
-"""${text}"""
-`;
+  Respond with ONLY valid JSON like:
+  {
+    "title": "...",
+    "start_datetime_iso": "YYYY-MM-DDTHH:MM:SS-05:00",
+    "end_datetime_iso": "YYYY-MM-DDTHH:MM:SS-05:00",
+    "location": "...",
+    "online_meeting_url": "...",
+    "notes": "..."
+  }
+
+  Text:
+  """${text}"""
+  `;
+
 
   try {
     const apiRes = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
@@ -74,26 +80,26 @@ Text:
     }
 
     const data = await apiRes.json();
-    let modelText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+  let modelText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
 
-    // Strip ```json ... ``` wrappers if present
-    let cleaned = modelText.trim();
-    if (cleaned.startsWith('```')) {
-      // remove starting ```json or ``` 
-      cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, '');
-      // remove trailing ```
-      cleaned = cleaned.replace(/```$/, '');
-      cleaned = cleaned.trim();
-    }
+  // Strip ```json ... ``` wrappers if present
+  let cleaned = modelText.trim();
+  if (cleaned.startsWith('```')) {
+    // remove starting ```json or ``` 
+    cleaned = cleaned.replace(/^```[a-zA-Z]*\n?/, '');
+    // remove trailing ```
+    cleaned = cleaned.replace(/```$/, '');
+    cleaned = cleaned.trim();
+  }
 
-    let eventData;
-    try {
-      eventData = JSON.parse(cleaned);
-    } catch (e) {
-      console.error('Could not parse JSON from model:', modelText);
-      console.error('Cleaned text was:', cleaned);
-      return res.status(500).json({ error: 'Invalid JSON from Gemini' });
-    }
+  let eventData;
+  try {
+    eventData = JSON.parse(cleaned);
+  } catch (e) {
+    console.error('Could not parse JSON from model:', modelText);
+    console.error('Cleaned text was:', cleaned);
+    return res.status(500).json({ error: 'Invalid JSON from Gemini' });
+  }
 
 
     res.json(eventData);
