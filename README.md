@@ -22,6 +22,20 @@ scheduling website for events to reduce time inputting events + meetings like co
     - Data Access:
         - Add or Remove Scopes
         - ./auth/calendar
+Bugs:
+    - OAuth saying that app is testing but you aren't on test list 
+    Step 1: Check your OAuth consent screen
+    - Fix:
+        - Go to Google Cloud Console: https://console.cloud.google.com
+
+        - In the left sidebar, click:
+            - APIs & Services → OAuth consent screen
+        Click the Audience tab.
+            - Scroll until you see a card/section called Test users.
+            - Click “+ Add users”.
+                Enter the Gmail address you’re signing into Chrome with (and any others you want), then Save.
+
+
 
 Important notes
 Every time you change your manifest or extension files, click Reload in the extensions page.
