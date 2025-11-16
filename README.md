@@ -36,6 +36,12 @@ Bugs:
                 Enter the Gmail address you’re signing into Chrome with (and any others you want), then Save.
 
 
+## Creating Backend:
+Node + Express
+- npm init -y
+- npm install express cors
+- npm install node-fetch
+
 
 Important notes
 Every time you change your manifest or extension files, click Reload in the extensions page.
