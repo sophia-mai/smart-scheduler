@@ -124,6 +124,8 @@ confirmBtn.addEventListener('click', async () => {
   const startIso = `${date}T${startTime}:00`;
   const endIso   = `${date}T${endTime}:00`;
 
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York';
+
   try {
     setGhostState('thinking');
     setStatus('Saving to your calendar...');
@@ -142,8 +144,14 @@ confirmBtn.addEventListener('click', async () => {
         body: JSON.stringify({
           summary,
           location,
-          start: { dateTime: startIso },
-          end:   { dateTime: endIso }
+          start: {
+            dateTime: startIso,
+            timeZone
+          },
+          end: {
+            dateTime: endIso,
+            timeZone
+          }
         })
       }
     );
